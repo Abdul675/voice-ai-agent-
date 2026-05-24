@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MedCall AI</title>
+  <style>
+    :root {
+      --bg: #0b1220;
+      --bg-soft: #101a2e;
+      --card: #131f35;
+      --card-light: #182640;
+      --border: #26364f;
+      --text: #f8fafc;
+      --muted: #94a3b8;
+      --green: #22c55e;
+      --green-dark: #16a34a;
+      --red: #ef4444;
+      --yellow: #facc15;
+      --orange: #f97316;
+      --gray: #64748b;
+      --blue: #38bdf8;
+      --shadow: 0 18px 45px rgba(0, 0, 0, 0.28);
+      --radius: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top left, rgba(56, 189, 248, 0.12), transparent 28rem),
+        linear-gradient(135deg, var(--bg), #111827);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      line-height: 1.5;
+    }
+
+    .page {
+      width: min(1120px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0;
+    }
+
+    .header {
+      padding: 28px 0 24px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 6px;
+    }
+
+    .mic {
+      display: inline-grid;
+      place-items: center;
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: rgba(34, 197, 94, 0.14);
+      border: 1px solid rgba(34, 197, 94, 0.32);
+      color: var(--green);
+      font-size: 20px;
+    }
+
+    h1,
+    h2,
+    p {
+      margin: 0;
+    }
+
+    h1 {
+      font-size: clamp(30px, 5vw, 46px);
+      letter-spacing: 0;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      font-size: 16px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 18px;
+    }
+
+    .top-grid {
+      grid-template-columns: minmax(0, 1fr) minmax(320px, 0.8fr);
+      align-items: start;
+    }
+
+    .card {
+      background: linear-gradient(180deg, var(--card), var(--bg-soft));
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 22px;
+    }
+
+    .card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+
+    .card-title {
+      font-size: 20px;
+      font-weight: 700;
+    }
+
+    .info-text,
+    .helper {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 8px;
+      color: #dbeafe;
+      font-size: 14px;
+      font-weight: 700;
+    }
+
+    input {
+      width: 100%;
+      min-height: 48px;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: #0f172a;
+      color: var(--text);
+      padding: 0 14px;
+      font-size: 16px;
+      outline: none;
+      transition: border-color 160ms ease, box-shadow 160ms ease, background 160ms ease;
+    }
+
+    input:focus {
+      border-color: var(--blue);
+      background: #111c31;
+      box-shadow: 0 0 0 4px rgba(56, 189, 248, 0.13);
+    }
+
+    .helper {
+      margin-top: 8px;
+      margin-bottom: 16px;
+    }
+
+    button {
+      border: 0;
+      border-radius: var(--radius);
+      color: var(--text);
+      cursor: pointer;
+      font-weight: 700;
+      transition: transform 160ms ease, background 160ms ease, opacity 160ms ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    button:disabled {
+      cursor: not-allowed;
+      opacity: 0.7;
+      transform: none;
+    }
+
+    .primary-btn {
+      width: 100%;
+      min-height: 50px;
+      background: var(--green);
+      font-size: 16px;
+    }
+
+    .primary-btn:hover {
+      background: var(--green-dark);
+    }
+
+    .secondary-btn {
+      min-height: 38px;
+      background: var(--card-light);
+      border: 1px solid var(--border);
+      padding: 0 14px;
+      color: #dbeafe;
+    }
+
+    .secondary-btn:hover {
+      background: #22324d;
+    }
+
+    .message {
+      display: none;
+      margin-top: 14px;
+      border-radius: var(--radius);
+      padding: 12px 14px;
+      font-size: 14px;
+      border: 1px solid transparent;
+    }
+
+    .message.show {
+      display: block;
+    }
+
+    .success {
+      background: rgba(34, 197, 94, 0.12);
+      border-color: rgba(34, 197, 94, 0.36);
+      color: #bbf7d0;
+    }
+
+    .error {
+      background: rgba(239, 68, 68, 0.12);
+      border-color: rgba(239, 68, 68, 0.38);
+      color: #fecaca;
+    }
+
+    .loading {
+      display: none;
+      align-items: center;
+      gap: 10px;
+      margin-top: 14px;
+      color: #dbeafe;
+      font-size: 14px;
+    }
+
+    .loading.show {
+      display: flex;
+    }
+
+    .spinner {
+      width: 18px;
+      height: 18px;
+      border: 3px solid rgba(255, 255, 255, 0.2);
+      border-top-color: var(--green);
+      border-radius: 50%;
+      animation: spin 850ms linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    .status-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 26px;
+      border-radius: 999px;
+      padding: 4px 10px;
+      color: #fff;
+      font-size: 12px;
+      font-weight: 800;
+      text-transform: capitalize;
+      white-space: nowrap;
+    }
+
+    .status-initiated,
+    .status-unknown,
+    .outcome-no_answer,
+    .outcome-unknown {
+      background: var(--gray);
+    }
+
+    .status-ringing {
+      background: var(--yellow);
+      color: #111827;
+    }
+
+    .status-in_progress,
+    .status-completed,
+    .outcome-confirmed {
+      background: var(--green);
+    }
+
+    .status-failed,
+    .outcome-cancelled {
+      background: var(--red);
+    }
+
+    .outcome-reschedule_requested {
+      background: var(--orange);
+    }
+
+    .pulse {
+      animation: pulse 1.4s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%,
+      100% {
+        box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.42);
+      }
+      50% {
+        box-shadow: 0 0 0 8px rgba(34, 197, 94, 0);
+      }
+    }
+
+    .details {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .detail {
+      background: rgba(15, 23, 42, 0.72);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 12px;
+      min-width: 0;
+    }
+
+    .detail span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-bottom: 4px;
+    }
+
+    .detail strong {
+      display: block;
+      overflow-wrap: anywhere;
+      font-size: 15px;
+    }
+
+    .table-wrap {
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      min-width: 780px;
+    }
+
+    th,
+    td {
+      padding: 13px 12px;
+      border-bottom: 1px solid var(--border);
+      text-align: left;
+      font-size: 14px;
+      vertical-align: middle;
+    }
+
+    th {
+      color: #cbd5e1;
+      background: rgba(15, 23, 42, 0.58);
+      font-size: 12px;
+      text-transform: uppercase;
+    }
+
+    td {
+      color: #e5e7eb;
+    }
+
+    tr:hover td {
+      background: rgba(255, 255, 255, 0.025);
+    }
+
+    .empty {
+      padding: 18px;
+      text-align: center;
+      color: var(--muted);
+      border: 1px dashed var(--border);
+      border-radius: var(--radius);
+      background: rgba(15, 23, 42, 0.4);
+    }
+
+    .appointments {
+      display: grid;
+      gap: 10px;
+      margin-top: 16px;
+    }
+
+    .appointment-row {
+      display: grid;
+      grid-template-columns: 150px 1fr 120px 1fr;
+      gap: 12px;
+      align-items: center;
+      padding: 13px;
+      background: rgba(15, 23, 42, 0.65);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+    }
+
+    .phone-link {
+      color: #7dd3fc;
+      background: none;
+      padding: 0;
+      text-align: left;
+      font-size: 14px;
+      text-decoration: underline;
+      text-underline-offset: 3px;
+    }
+
+    .phone-link:hover {
+      color: #bae6fd;
+      transform: none;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    @media (max-width: 860px) {
+      .top-grid,
+      .details {
+        grid-template-columns: 1fr;
+      }
+
+      .appointment-row {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .page {
+        width: min(100% - 20px, 1120px);
+        padding: 18px 0;
+      }
+
+      .card {
+        padding: 16px;
+      }
+
+      .card-header,
+      .status-row {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .secondary-btn {
+        width: 100%;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <header class="header">
+      <div class="brand">
+        <span class="mic" aria-hidden="true">🎙</span>
+        <h1>MedCall AI</h1>
+      </div>
+      <p class="subtitle">Automated Appointment Reminder System</p>
+    </header>
+
+    <section class="grid top-grid">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">Trigger Outbound Call</h2>
+        </div>
+
+        <label for="phoneInput">Phone Number</label>
+        <input id="phoneInput" type="tel" placeholder="+1 234 567 8900" autocomplete="tel">
+        <p class="helper">Enter any phone number. If no appointment exists, a demo appointment will be created automatically.</p>
+
+        <button id="callButton" class="primary-btn" type="button" onclick="triggerCall()">Call Now</button>
+
+        <div id="callLoading" class="loading">
+          <span class="spinner" aria-hidden="true"></span>
+          <span>Initiating call...</span>
+        </div>
+
+        <div id="callMessage" class="message"></div>
+      </div>
+
+      <div id="statusCard" class="card hidden">
+        <div class="status-row">
+          <h2 class="card-title">Call Status</h2>
+          <span id="activeStatusBadge" class="badge status-unknown">Unknown</span>
+        </div>
+
+        <div class="details">
+          <div class="detail">
+            <span>Patient Name</span>
+            <strong id="statusPatient">-</strong>
+          </div>
+          <div class="detail">
+            <span>Appointment Date</span>
+            <strong id="statusDate">-</strong>
+          </div>
+          <div class="detail">
+            <span>Appointment Time</span>
+            <strong id="statusTime">-</strong>
+          </div>
+          <div class="detail">
+            <span>Doctor</span>
+            <strong id="statusDoctor">-</strong>
+          </div>
+          <div class="detail">
+            <span>Outcome</span>
+            <strong id="statusOutcome">-</strong>
+          </div>
+        </div>
+
+        <button class="secondary-btn" type="button" onclick="refreshActiveCall()">Refresh Status</button>
+      </div>
+    </section>
+
+    <section class="card" style="margin-top: 18px;">
+      <div class="card-header">
+        <h2 class="card-title">Recent Calls</h2>
+        <button class="secondary-btn" type="button" onclick="loadRecentCalls()">Refresh</button>
+      </div>
+
+      <div id="recentCallsEmpty" class="empty hidden">No calls yet. Make your first call above.</div>
+      <div id="recentCallsTable" class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Phone</th>
+              <th>Patient</th>
+              <th>Status</th>
+              <th>Outcome</th>
+              <th>Duration</th>
+              <th>Time</th>
+            </tr>
+          </thead>
+          <tbody id="recentCallsBody"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <section class="card" style="margin-top: 18px;">
+      <div class="card-header">
+        <div>
+          <h2 class="card-title">Pre-loaded Test Appointments</h2>
+          <p class="info-text">These phone numbers already have appointments in the system</p>
+        </div>
+      </div>
+
+      <div id="appointmentsList" class="appointments"></div>
+    </section>
+  </main>
+
+  <script>
+    const BASE_URL = window.location.origin;
+
+    let activeCallId = null;
+    let autoRefreshInterval = null;
+
+    document.addEventListener("DOMContentLoaded", () => {
+      loadRecentCalls();
+      loadAppointments();
+    });
+
+    async function triggerCall() {
+      const phoneInput = document.getElementById("phoneInput");
+      const phoneNumber = phoneInput.value.trim();
+
+      if (!phoneNumber) {
+        showCallMessage("Please enter a phone number.", "error");
+        return;
+      }
+
+      setLoading(true);
+      hideCallMessage();
+
+      try {
+        const response = await fetch(`${BASE_URL}/api/calls`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ phone_number: phoneNumber })
+        });
+
+        const data = await parseResponse(response);
+
+        activeCallId = data.call_id;
+        showCallMessage(`Call started successfully. Call ID: ${data.call_id}, Patient: ${data.patient_name || "Unknown"}`, "success");
+        updateStatusCard(data);
+        document.getElementById("statusCard").classList.remove("hidden");
+        startAutoRefresh(data.call_id);
+        loadRecentCalls();
+      } catch (error) {
+        showCallMessage(error.message, "error");
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    async function getCallStatus(id) {
+      try {
+        const response = await fetch(`${BASE_URL}/api/calls/${id}`);
+        const data = await parseResponse(response);
+
+        updateStatusCard(data);
+
+        if (data.status === "ringing" || data.status === "in_progress") {
+          startAutoRefresh(id);
+        } else {
+          stopAutoRefresh();
+        }
+
+        loadRecentCalls();
+        return data;
+      } catch (error) {
+        showCallMessage(error.message, "error");
+        stopAutoRefresh();
+        throw error;
+      }
+    }
+
+    async function loadRecentCalls() {
+      const table = document.getElementById("recentCallsTable");
+      const empty = document.getElementById("recentCallsEmpty");
+      const body = document.getElementById("recentCallsBody");
+
+      try {
+        const response = await fetch(`${BASE_URL}/api/calls`);
+        const calls = await parseResponse(response);
+
+        body.innerHTML = "";
+
+        if (!Array.isArray(calls) || calls.length === 0) {
+          table.classList.add("hidden");
+          empty.classList.remove("hidden");
+          return;
+        }
+
+        table.classList.remove("hidden");
+        empty.classList.add("hidden");
+
+        calls.forEach((call, index) => {
+          const row = document.createElement("tr");
+          row.innerHTML = `
+            <td>${index + 1}</td>
+            <td>${escapeHtml(call.phone_number || "-")}</td>
+            <td>${escapeHtml(call.patient_name || "-")}</td>
+            <td>${badgeHtml(call.status, "status")}</td>
+            <td>${badgeHtml(call.outcome || "unknown", "outcome")}</td>
+            <td>${formatDuration(call.duration_seconds)}</td>
+            <td>${formatTime(call.started_at || call.ended_at)}</td>
+          `;
+          body.appendChild(row);
+        });
+      } catch (error) {
+        body.innerHTML = `<tr><td colspan="7">${escapeHtml(error.message)}</td></tr>`;
+        table.classList.remove("hidden");
+        empty.classList.add("hidden");
+      }
+    }
+
+    async function loadAppointments() {
+      const list = document.getElementById("appointmentsList");
+
+      try {
+        const response = await fetch(`${BASE_URL}/api/appointments`);
+        const appointments = await parseResponse(response);
+
+        list.innerHTML = "";
+
+        if (!Array.isArray(appointments) || appointments.length === 0) {
+          list.innerHTML = `<div class="empty">No pre-loaded appointments found.</div>`;
+          return;
+        }
+
+        appointments.slice(0, 3).forEach((appointment) => {
+          const phone = appointment.phone_number || appointment.phone_no || "";
+          const row = document.createElement("div");
+          row.className = "appointment-row";
+          row.innerHTML = `
+            <button class="phone-link" type="button">${escapeHtml(phone || "-")}</button>
+            <strong>${escapeHtml(appointment.patient_name || "-")}</strong>
+            <span class="muted">${escapeHtml(appointment.appointment_date || "-")}</span>
+            <span>${escapeHtml(appointment.doctor_name || "-")}</span>
+          `;
+
+          row.querySelector("button").addEventListener("click", () => {
+            document.getElementById("phoneInput").value = phone;
+            document.getElementById("phoneInput").focus();
+          });
+
+          list.appendChild(row);
+        });
+      } catch (error) {
+        list.innerHTML = `<div class="empty">${escapeHtml(error.message)}</div>`;
+      }
+    }
+
+    function startAutoRefresh(id) {
+      stopAutoRefresh();
+      autoRefreshInterval = setInterval(() => {
+        getCallStatus(id);
+      }, 5000);
+    }
+
+    function stopAutoRefresh() {
+      if (autoRefreshInterval) {
+        clearInterval(autoRefreshInterval);
+        autoRefreshInterval = null;
+      }
+    }
+
+    function refreshActiveCall() {
+      if (activeCallId) {
+        getCallStatus(activeCallId);
+      }
+    }
+
+    function updateStatusCard(call) {
+      activeCallId = call.call_id || activeCallId;
+
+      document.getElementById("statusPatient").textContent = call.patient_name || "-";
+      document.getElementById("statusDate").textContent = call.appointment_date || "-";
+      document.getElementById("statusTime").textContent = call.appointment_time || "-";
+      document.getElementById("statusDoctor").textContent = call.doctor_name || "-";
+      document.getElementById("statusOutcome").textContent = call.outcome || "-";
+
+      const badge = document.getElementById("activeStatusBadge");
+      badge.className = `badge ${statusClass(call.status)}`;
+      badge.textContent = formatLabel(call.status || "unknown");
+
+      if (call.status === "ringing" || call.status === "in_progress") {
+        badge.classList.add("pulse");
+      }
+    }
+
+    async function parseResponse(response) {
+      let data;
+
+      try {
+        data = await response.json();
+      } catch {
+        data = {};
+      }
+
+      if (!response.ok) {
+        const message = data.detail || data.message || `Request failed with status ${response.status}`;
+        throw new Error(message);
+      }
+
+      return data;
+    }
+
+    function setLoading(isLoading) {
+      document.getElementById("callLoading").classList.toggle("show", isLoading);
+      document.getElementById("callButton").disabled = isLoading;
+    }
+
+    function showCallMessage(text, type) {
+      const message = document.getElementById("callMessage");
+      message.textContent = text;
+      message.className = `message show ${type}`;
+    }
+
+    function hideCallMessage() {
+      const message = document.getElementById("callMessage");
+      message.textContent = "";
+      message.className = "message";
+    }
+
+    function badgeHtml(value, type) {
+      const safeValue = value || "unknown";
+      const pulse = type === "status" && (safeValue === "ringing" || safeValue === "in_progress") ? " pulse" : "";
+      const className = type === "status" ? statusClass(safeValue) : outcomeClass(safeValue);
+      return `<span class="badge ${className}${pulse}">${escapeHtml(formatLabel(safeValue))}</span>`;
+    }
+
+    function statusClass(status) {
+      return `status-${status || "unknown"}`;
+    }
+
+    function outcomeClass(outcome) {
+      return `outcome-${outcome || "unknown"}`;
+    }
+
+    function formatLabel(value) {
+      return String(value || "unknown").replaceAll("_", " ");
+    }
+
+    function formatDuration(seconds) {
+      if (!seconds) {
+        return "-";
+      }
+
+      return `${seconds}s`;
+    }
+
+    function formatTime(value) {
+      if (!value) {
+        return "-";
+      }
+
+      const date = new Date(value);
+      if (Number.isNaN(date.getTime())) {
+        return value;
+      }
+
+      return date.toLocaleString();
+    }
+
+    function escapeHtml(value) {
+      return String(value)
+        .replaceAll("&", "&amp;")
+        .replaceAll("<", "&lt;")
+        .replaceAll(">", "&gt;")
+        .replaceAll('"', "&quot;")
+        .replaceAll("'", "&#039;");
+    }
+  </script>
+</body>
+</html>
